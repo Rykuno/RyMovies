@@ -1,0 +1,25 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="com.rykuno.rymovies.UI.CommentsFragment">
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:id="@+id/comments_listView"
+        android:scrollIndicators="right"
+        android:nestedScrollingEnabled="true"
+        android:smoothScrollbar="true"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:background="#e9e7e7"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:id="@+id/comments_emptyView"
+        android:layout_centerHorizontal="true"
+        android:text="No Comments Available..."/>
+</RelativeLayout>

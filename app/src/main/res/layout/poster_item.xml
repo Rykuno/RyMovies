@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             android:orientation="vertical"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:layout_marginBottom="4dp"
+               android:layout_marginLeft="2dp"
+               android:layout_marginRight="2dp"
+               android:id="@+id/poster_imageView"
+               android:scaleType="centerCrop">
+    </ImageView>
+        <jp.shts.android.library.TriangleLabelView
+            android:id="@+id/posterRating"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            app:backgroundColor="@color/red_900"
+            app:corner="rightTop"
+            android:layout_marginRight="2dp"
+            app:labelBottomPadding="5dp"
+            app:labelCenterPadding="0dp"
+            app:labelTopPadding="10dp"
+            app:primaryText="Hot"
+            app:primaryTextColor="@color/red_500"
+            app:primaryTextSize="16sp"
+            app:secondaryText="01"
+            app:secondaryTextColor="@color/red_100"
+            app:secondaryTextSize="11sp" />
+    </RelativeLayout>
+
+</FrameLayout>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/scroll_view"
+    android:background="#e9e7e7">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/detailed_relative_layout">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/backdrop_imageView"
+            android:layout_centerHorizontal="true"
+            android:scaleType="fitXY"/>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/card_view2"
+            app:cardUseCompatPadding="true"
+            card_view:cardElevation="4dp"
+            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/backdrop_imageView"
+            card_view:cardCornerRadius="3dp"
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/tools"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="0dp">
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/SplitLine_hor0"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/linearLayout"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="15dp"
+                >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/poster_imageView"
+                    android:layout_gravity="left"
+                    />
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="top"
+                    >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="New Text"
+                        android:id="@+id/title_textView"
+                        android:gravity="center_vertical"
+                        android:textStyle="bold"
+                        android:textSize="24sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="New Text"
+                        android:id="@+id/rating_textView"
+                        android:gravity="center_vertical"
+                        android:textSize = "22sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="5sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="New Text"
+                        android:id="@+id/released_textView"
+                        android:gravity="center_vertical"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="5sp"/>
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Reviews"
+                        android:id="@+id/reviews_button"/>
+
+                </LinearLayout>
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:id="@+id/plotlayout"
+            android:layout_marginTop="10dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10dp"
+            android:layout_below="@id/card_view2">
+            <android.support.v7.widget.CardView
+                android:id="@+id/card_view1"
+                app:cardUseCompatPadding="true"
+                card_view:cardElevation="4dp"
+                android:layout_margin="5dp"
+                android:layout_centerHorizontal="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                card_view:cardCornerRadius="3dp"
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/tools">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Plot"
+                        android:textStyle="bold"
+                        android:textSize="22sp"
+                        android:layout_marginLeft="10sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="New Text"
+                        android:id="@+id/plot_textView"
+                        android:layout_centerHorizontal="true"
+                        android:textSize="18sp"
+                        android:layout_margin="5sp"
+                        android:paddingLeft="10sp"
+                        android:paddingRight="10sp"/>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+
+        <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:id="@+id/trailer_gridview"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_below="@id/plotlayout"
+                  android:numColumns="3"
+                  android:adjustViewBounds="false"
+                  android:nestedScrollingEnabled="false"
+                  android:rowCount = "1"
+                  android:horizontalSpacing="5dp"
+                  android:layout_marginLeft="5dp"
+                  android:layout_marginRight="5dp"
+            >
+        </GridView>
+
+    </RelativeLayout>
+</ScrollView>
