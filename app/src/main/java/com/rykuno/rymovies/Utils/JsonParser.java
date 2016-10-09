@@ -21,7 +21,7 @@ public class JsonParser {
 
     }
 
-    public ArrayList<?> parseJsonData(String code, String jsonData) throws JSONException {
+    public ArrayList parseJsonData(String code, String jsonData) throws JSONException {
         switch (code){
             case "poster" :
                 return getPosterJsonDetails(jsonData);

@@ -9,11 +9,23 @@ import com.rykuno.rymovies.R;
 
 public class MainActivity extends AppCompatActivity {
 
+    private boolean mTabletMode;
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if(findViewById(R.id.detail_container)!= null){
+            mTabletMode = true;
+            DetailFragment detailFragment = new DetailFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, detailFragment).commit();
+        }
+    }
+
+    public boolean isTablet() {
+        return mTabletMode;
     }
 
     @Override
@@ -22,5 +34,4 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-
 }

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,13 +33,16 @@ public class PosterFragment extends Fragment {
     private static final String MOVIE_KEY = "MOVIE_KEY";
     private static final int CODE_PREFERENCES = 100;
 
+
     @BindView(R.id.moviesPoster_gridview)
     GridView mGridView;
+
 
     private MovieGridAdapter mAdapter;
     private ArrayList<Movie> mMovieList = new ArrayList<>();
     private ApiRequest apiRequest;
     private SharedPreferences prefs;
+    private Boolean mTablet;
 
     public PosterFragment() {
 
@@ -59,10 +63,21 @@ public class PosterFragment extends Fragment {
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Movie currentMovie = (Movie) parent.getItemAtPosition(position);
-                Intent intent = new Intent(getActivity(), DetailActivity.class);
-                intent.putExtra(getString(R.string.movie_key), currentMovie);
-                startActivity(intent);
+                mTablet = ((MainActivity) getActivity()).isTablet();
+                if (!mTablet) {
+                    Movie currentMovie = (Movie) parent.getItemAtPosition(position);
+                    Intent intent = new Intent(getActivity(), DetailActivity.class);
+                    intent.putExtra(getString(R.string.movie_key), currentMovie);
+                    startActivity(intent);
+                }else{
+                    Bundle args = new Bundle();
+                    Movie currentMovie = (Movie) parent.getItemAtPosition(position);
+                    args.putParcelable("ARGUMENTS", currentMovie);
+                    Log.v("CLICKING", currentMovie.getTitle());
+                    DetailFragment detailFragment = new DetailFragment();
+                    detailFragment.setArguments(args);
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, detailFragment).commit();
+                }
             }
         });
 
@@ -81,8 +96,19 @@ public class PosterFragment extends Fragment {
         mMovieList.clear();
         mMovieList.addAll(event);
         mAdapter.notifyDataSetChanged();
-    }
 
+        mTablet = ((MainActivity) getActivity()).isTablet();
+        if (mTablet) {
+            Bundle args = new Bundle();
+            Movie currentMovie = event.get(0);
+            args.putParcelable("ARGUMENTS", currentMovie);
+            Log.v("CLICKING", currentMovie.getTitle());
+            DetailFragment detailFragment = new DetailFragment();
+            detailFragment.setArguments(args);
+            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, detailFragment).commit();
+        }
+
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -130,4 +156,5 @@ public class PosterFragment extends Fragment {
         EventBus.getDefault().register(this);
         super.onResume();
     }
+
 }

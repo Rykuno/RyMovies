@@ -27,6 +27,7 @@ public class ApiRequest {
     private String mCode;
     private Context mContext;
 
+
     public ApiRequest(Context context, String code) {
         mContext = context;
         mCode = code;
