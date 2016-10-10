@@ -32,17 +32,15 @@ import butterknife.ButterKnife;
 public class PosterFragment extends Fragment {
     private static final String MOVIE_KEY = "MOVIE_KEY";
     private static final int CODE_PREFERENCES = 100;
-
-
-    @BindView(R.id.moviesPoster_gridview)
-    GridView mGridView;
-
-
     private MovieGridAdapter mAdapter;
     private ArrayList<Movie> mMovieList = new ArrayList<>();
     private ApiRequest apiRequest;
     private SharedPreferences prefs;
     private Boolean mTablet;
+
+    @BindView(R.id.moviesPoster_gridview)
+    GridView mGridView;
+
 
     public PosterFragment() {
 
@@ -53,12 +51,18 @@ public class PosterFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_poster, container, false);
         ButterKnife.bind(this, rootView);
         setHasOptionsMenu(true);
-        mAdapter = new MovieGridAdapter(getActivity(), mMovieList);
-        mGridView.setAdapter(mAdapter);
+        setUIData();
 
         if (savedInstanceState == null) {
             fetchPosterData();
         }
+
+        return rootView;
+    }
+
+    private void setUIData() {
+        mAdapter = new MovieGridAdapter(getActivity(), mMovieList);
+        mGridView.setAdapter(mAdapter);
 
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -69,7 +73,7 @@ public class PosterFragment extends Fragment {
                     Intent intent = new Intent(getActivity(), DetailActivity.class);
                     intent.putExtra(getString(R.string.movie_key), currentMovie);
                     startActivity(intent);
-                }else{
+                } else {
                     Bundle args = new Bundle();
                     Movie currentMovie = (Movie) parent.getItemAtPosition(position);
                     args.putParcelable("ARGUMENTS", currentMovie);
@@ -81,31 +85,32 @@ public class PosterFragment extends Fragment {
             }
         });
 
-        return rootView;
     }
 
     private void fetchPosterData() {
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String baseUrl = "http://api.themoviedb.org/3/movie/" + prefs.getString(getString(R.string.sortOptions), getString(R.string.popular)) + "?api_key=0379de6cabbe4ba56fb0e6d68aa6bbdc";
-        apiRequest = new ApiRequest(getActivity(), "poster");
-        apiRequest.fetchData(baseUrl);
+        apiRequest = new ApiRequest(getActivity());
+        apiRequest.fetchData(baseUrl, "poster");
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(ArrayList<Movie> event) throws JSONException {
-        mMovieList.clear();
-        mMovieList.addAll(event);
-        mAdapter.notifyDataSetChanged();
+        if (!event.isEmpty() && event.get(0) instanceof Movie) {
+            mMovieList.clear();
+            mMovieList.addAll(event);
+            mAdapter.notifyDataSetChanged();
 
-        mTablet = ((MainActivity) getActivity()).isTablet();
-        if (mTablet) {
-            Bundle args = new Bundle();
-            Movie currentMovie = event.get(0);
-            args.putParcelable("ARGUMENTS", currentMovie);
-            Log.v("CLICKING", currentMovie.getTitle());
-            DetailFragment detailFragment = new DetailFragment();
-            detailFragment.setArguments(args);
-            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, detailFragment).commit();
+            mTablet = ((MainActivity) getActivity()).isTablet();
+            if (mTablet) {
+                Bundle args = new Bundle();
+                Movie currentMovie = event.get(0);
+                args.putParcelable("ARGUMENTS", currentMovie);
+                Log.v("CLICKING", currentMovie.getTitle());
+                DetailFragment detailFragment = new DetailFragment();
+                detailFragment.setArguments(args);
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, detailFragment).commit();
+            }
         }
 
     }
@@ -140,7 +145,7 @@ public class PosterFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CODE_PREFERENCES) {
             String baseUrl = "http://api.themoviedb.org/3/movie/" + prefs.getString(getString(R.string.sortOptions), getString(R.string.popular)) + "?api_key=0379de6cabbe4ba56fb0e6d68aa6bbdc";
-            apiRequest.fetchData(baseUrl);
+            apiRequest.fetchData(baseUrl, "poster");
         }
     }
 

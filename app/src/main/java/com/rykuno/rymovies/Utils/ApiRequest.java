@@ -22,18 +22,17 @@ import okhttp3.Response;
  */
 
 public class ApiRequest {
-    private ArrayList<?> mArrayList = new ArrayList<>();
     private JsonParser mJsonParser;
     private String mCode;
     private Context mContext;
 
 
-    public ApiRequest(Context context, String code) {
+    public ApiRequest(Context context) {
         mContext = context;
-        mCode = code;
     }
 
-    public void fetchData(String url) {
+    public void fetchData(String url, String code) {
+        mCode = code;
         if (isNetworkAvailable()) {
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder().url(url).build();
@@ -48,11 +47,11 @@ public class ApiRequest {
                     String mJsonData = response.body().string();
                     mJsonParser = new JsonParser();
                     try {
-                        mArrayList = mJsonParser.parseJsonData(mCode, mJsonData);
+                        ArrayList parsedJsonArrayList = mJsonParser.parseJsonData(mCode, mJsonData);
+                        EventBus.getDefault().post(parsedJsonArrayList);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    EventBus.getDefault().post(mArrayList);
                 }
             });
         } else {

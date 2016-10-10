@@ -22,12 +22,12 @@ public class JsonParser {
     }
 
     public ArrayList parseJsonData(String code, String jsonData) throws JSONException {
-        switch (code){
-            case "poster" :
+        switch (code) {
+            case "poster":
                 return getPosterJsonDetails(jsonData);
-            case "trailer" :
+            case "trailer":
                 return getTrailerJsonDetails(jsonData);
-            case "comments" :
+            case "comments":
                 return getCommentsJsonDetails(jsonData);
         }
         return null;
@@ -57,7 +57,7 @@ public class JsonParser {
         ArrayList<String> videoKeyArrayList = new ArrayList<>();
         JSONObject root = new JSONObject(jsonData);
         JSONArray results = root.getJSONArray("results");
-        for (int i = 0; i<results.length(); i++) {
+        for (int i = 0; i < results.length(); i++) {
             JSONObject keyResults = results.getJSONObject(i);
             String youtubeKey = keyResults.getString("key");
             videoKeyArrayList.add(youtubeKey);
