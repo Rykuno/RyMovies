@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Created by rykuno on 10/6/16.
  */
 
-public class Movie implements Parcelable {
+public class Movie implements Parcelable{
     private String mTitle;
     private String mPlot;
     private String mPoster;
@@ -15,6 +15,9 @@ public class Movie implements Parcelable {
     private String mReleaseDate;
     private String mBackdrop;
     private int mId;
+    private byte[] posterByte;
+    private byte[] backdropByte;
+
 
     public Movie(String title, String plot, String poster, double rating, String releaseDate, String backdrop, int id) {
         mTitle = title;
@@ -26,6 +29,21 @@ public class Movie implements Parcelable {
         mId = id;
     }
 
+    public Movie(String title, String plot, byte[] poster, double rating, String releaseDate, byte[] backdrop, int id) {
+
+        mTitle = title;
+        mPlot = plot;
+        posterByte = poster;
+        mRating = rating;
+        mReleaseDate = releaseDate;
+        backdropByte = backdrop;
+        mId = id;
+
+
+
+
+    }
+
     protected Movie(Parcel in) {
         mTitle = in.readString();
         mPlot = in.readString();
@@ -34,6 +52,8 @@ public class Movie implements Parcelable {
         mReleaseDate = in.readString();
         mBackdrop = in.readString();
         mId = in.readInt();
+        posterByte = in.createByteArray();
+        backdropByte = in.createByteArray();
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -72,9 +92,21 @@ public class Movie implements Parcelable {
         return mBackdrop;
     }
 
+    public byte[] getPosterByte() {
+        return posterByte;
+    }
+
+    public byte[] getBackdropByte() {
+        return backdropByte;
+    }
+
     public int getId() {
         return mId;
     }
+
+
+
+
 
     @Override
     public int describeContents() {
@@ -90,5 +122,7 @@ public class Movie implements Parcelable {
         dest.writeString(mReleaseDate);
         dest.writeString(mBackdrop);
         dest.writeInt(mId);
+        dest.writeByteArray(posterByte);
+        dest.writeByteArray(backdropByte);
     }
 }

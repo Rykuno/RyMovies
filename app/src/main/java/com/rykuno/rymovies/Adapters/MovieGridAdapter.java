@@ -1,6 +1,8 @@
 package com.rykuno.rymovies.Adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +44,12 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
             holder = (MyViewHolder) gridItemView.getTag();
         }
 
+        if (currentMovie.getPoster() !=null)
         Picasso.with(getContext()).load("http://image.tmdb.org/t/p/w500/" + currentMovie.getPoster()).into(holder.posterImage);
+        else{
+            Bitmap bmp = BitmapFactory.decodeByteArray(currentMovie.getPosterByte(), 0, currentMovie.getPosterByte().length);
+            holder.posterImage.setImageBitmap(bmp);
+        }
 
 
         if (currentMovie.getRating() > 8) {

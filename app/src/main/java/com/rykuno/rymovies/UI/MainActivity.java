@@ -10,7 +10,6 @@ import com.rykuno.rymovies.R;
 public class MainActivity extends AppCompatActivity {
 
     private boolean mTabletMode;
-    private static final String DETAILFRAGMENT_TAG = "DFTAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
