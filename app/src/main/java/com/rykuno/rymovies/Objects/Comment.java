@@ -14,7 +14,8 @@ import android.os.Parcelable;
 public class Comment implements Parcelable {
     private String mAuthor;
     private String mComment;
-    public Comment(String author, String comment){
+
+    public Comment(String author, String comment) {
         mAuthor = author;
         mComment = comment;
     }

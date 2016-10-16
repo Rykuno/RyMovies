@@ -16,7 +16,6 @@ import com.rykuno.rymovies.data.MovieDbContract.FavoriteMovieEntry;
  */
 
 public class MovieProvider extends ContentProvider {
-    private static final String LOG_TAG = MovieProvider.class.getSimpleName();
     private MovieDbHelper mDbHelper;
     private static final int MOVIE = 0;
     private static final int MOVIE_ID = 1;
@@ -75,7 +74,15 @@ public class MovieProvider extends ContentProvider {
     @Nullable
     @Override
     public String getType(Uri uri) {
-        return null;
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case MOVIE:
+                return FavoriteMovieEntry.CONTENT_LIST_TYPE;
+            case MOVIE_ID:
+                return FavoriteMovieEntry.CONTENT_ITEM_TYPE;
+            default:
+                throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
+        }
     }
 
     @Nullable
@@ -92,7 +99,6 @@ public class MovieProvider extends ContentProvider {
 
     private Uri insertMovie(Uri uri, ContentValues values) {
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
-
         long id = database.insert(FavoriteMovieEntry.TABLE_NAME, null, values);
         if (id == -1) {
             return null;
@@ -130,6 +136,25 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case MOVIE:
+                return updateMovie(uri, values, selection, selectionArgs);
+            case MOVIE_ID:
+                selection = FavoriteMovieEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                return updateMovie(uri, values, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Update is not supported for " + uri);
+        }
+    }
+
+    private int updateMovie(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        int rowsUpdated = database.update(FavoriteMovieEntry.TABLE_NAME, values, selection, selectionArgs);
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
     }
 }

@@ -10,7 +10,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.rykuno.rymovies.Adapters.MovieCommentsAdapter;
+import com.rykuno.rymovies.BuildConfig;
 import com.rykuno.rymovies.Objects.Comment;
+import com.rykuno.rymovies.Objects.EventBusObjects.CommentsEvent;
 import com.rykuno.rymovies.R;
 import com.rykuno.rymovies.Utils.ApiRequest;
 
@@ -48,7 +50,7 @@ public class CommentsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_comments, container, false);
         ButterKnife.bind(this, rootView);
         Bundle bundle = this.getArguments();
-        mMovieIdKey = bundle.getInt("MOVIE_ID");
+        mMovieIdKey = bundle.getInt(getString(R.string.movie_id));
         setUIData();
 
         if (savedInstanceState == null && Integer.valueOf(mMovieIdKey) != null) {
@@ -67,18 +69,16 @@ public class CommentsFragment extends Fragment {
     }
 
     private void fetchTrailerData() {
-        String baseUrl = getString(R.string.movie_base_url) + String.valueOf(mMovieIdKey) + "/reviews?api_key=0379de6cabbe4ba56fb0e6d68aa6bbdc&language=en-US";
+        String baseUrl = getString(R.string.movie_base_url) + String.valueOf(mMovieIdKey) + "/reviews?api_key=" + BuildConfig.MY_MOVIE_DB_API_KEY;
         mApiRequest = new ApiRequest(getActivity());
-        mApiRequest.fetchData(baseUrl, "comments");
+        mApiRequest.fetchData(baseUrl, getString(R.string.comments));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(ArrayList<Comment> event) throws JSONException {
-        if (!event.isEmpty() && event.get(0) instanceof Comment) {
-            mCommentArrayList.clear();
-            mCommentArrayList.addAll(event);
-            mAdapter.notifyDataSetChanged();
-        }
+    public void onEvent(CommentsEvent event) throws JSONException {
+        mCommentArrayList.clear();
+        mCommentArrayList.addAll(event.getCommentArrayList());
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

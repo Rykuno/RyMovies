@@ -2,7 +2,6 @@
     <string name="app_name">RyMovies</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="data_fetch_failure">Unable to fetch data</string>
     <string name="title_activity_detail">Movie Details</string>
     <string name="action_settings">Settings</string>
@@ -13,4 +12,18 @@
     <string name="check_network_connection">Check Network Connection</string>
     <string name="movie_base_url">https://api.themoviedb.org/3/movie/</string>
     <string name="movie_key">MOVIE</string>
+    <string name="trailer">trailer</string>
+    <string name="poster">poster</string>
+    <string name="backdrop">backdrop</string>
+    <string name="favorites">favorites</string>
+    <string name="data_retreival_failure">Failed to retrieve data</string>
+    <string name="network_unavailable">Network Unavailable</string>
+    <string name="arguments">ARGUMENTS</string>
+    <string name="movie_id">MOVIE_ID</string>
+    <string name="comments">comments</string>
+    <string name="imageDir">imageDir</string>
+    <string name="no_movies_available">No Movies Available.</string>
+    <string name="plot">Plot</string>
+    <string name="send_to">Send to</string>
+    <string name="loading">Loading...</string>
 </resources>

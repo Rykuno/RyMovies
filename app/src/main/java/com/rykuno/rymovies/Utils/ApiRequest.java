@@ -5,6 +5,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.Toast;
 
+import com.rykuno.rymovies.Objects.EventBusObjects.CommentsEvent;
+import com.rykuno.rymovies.Objects.EventBusObjects.MovieEvent;
+import com.rykuno.rymovies.Objects.EventBusObjects.TrailerEvent;
+import com.rykuno.rymovies.R;
+
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 
@@ -25,6 +30,7 @@ public class ApiRequest {
     private JsonParser mJsonParser;
     private String mCode;
     private Context mContext;
+    private ArrayList parsedJsonArrayList;
 
 
     public ApiRequest(Context context) {
@@ -39,7 +45,6 @@ public class ApiRequest {
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    Toast.makeText(mContext, "Failed to retrieve data", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -47,17 +52,29 @@ public class ApiRequest {
                     String mJsonData = response.body().string();
                     mJsonParser = new JsonParser();
                     try {
-                        ArrayList parsedJsonArrayList = mJsonParser.parseJsonData(mCode, mJsonData);
-                        EventBus.getDefault().post(parsedJsonArrayList);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        switch (mCode) {
+                            case "poster":
+                                 parsedJsonArrayList = mJsonParser.parseJsonData(mCode, mJsonData);
+                                EventBus.getDefault().post(new MovieEvent(parsedJsonArrayList));
+                                break;
+                            case "trailer" :
+                                 parsedJsonArrayList = mJsonParser.parseJsonData(mCode, mJsonData);
+                                EventBus.getDefault().post(new TrailerEvent(parsedJsonArrayList));
+                                break;
+                            case "comments" :
+                                 parsedJsonArrayList = mJsonParser.parseJsonData(mCode, mJsonData);
+                                EventBus.getDefault().post(new CommentsEvent(parsedJsonArrayList));
+                                break;
+                        }
+                        }catch(JSONException e){
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
-        } else {
-            Toast.makeText(mContext, "Network Unavailable", Toast.LENGTH_SHORT).show();
+                });
+            }else{
+                Toast.makeText(mContext, R.string.network_unavailable, Toast.LENGTH_SHORT).show();
+            }
         }
-    }
 
     private boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -68,4 +85,5 @@ public class ApiRequest {
         }
         return isAvailable;
     }
+
 }

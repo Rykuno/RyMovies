@@ -1,26 +1,25 @@
 package com.rykuno.rymovies.UI;
 
-import android.app.LoaderManager;
+import android.app.ProgressDialog;
 import android.content.ContentUris;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import com.rykuno.rymovies.Adapters.MovieGridAdapter;
+import com.rykuno.rymovies.BuildConfig;
+import com.rykuno.rymovies.Objects.EventBusObjects.MovieEvent;
 import com.rykuno.rymovies.Objects.Movie;
 import com.rykuno.rymovies.R;
 import com.rykuno.rymovies.Utils.ApiRequest;
@@ -37,19 +36,22 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class PosterFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PosterFragment extends Fragment {
     private static final String MOVIE_KEY = "MOVIE_KEY";
     private static final int CODE_PREFERENCES = 100;
+    private static final String GRID_POSITION_KEY = "SCROLL KEY";
     private MovieGridAdapter mAdapter;
     private ArrayList<Movie> mMovieList = new ArrayList<>();
-    private ArrayList<Movie> mFavoriteMovies = new ArrayList<>();
-    private ApiRequest apiRequest;
-    private SharedPreferences prefs;
-    private Uri mCurrentUri;
-    private Boolean mTablet;
+    private ArrayList<Movie> mFavoritesArrayList = new ArrayList<>();
+    private ApiRequest mApiRequest;
+    private SharedPreferences mPrefs;
+    private boolean mTablet;
+    private ProgressDialog mDialog;
 
     @BindView(R.id.moviesPoster_gridview)
     GridView mGridView;
+    @BindView(R.id.gridView_emptyView)
+    View mEmptyView;
 
 
     public PosterFragment() {
@@ -61,23 +63,23 @@ public class PosterFragment extends Fragment implements LoaderManager.LoaderCall
         View rootView = inflater.inflate(R.layout.fragment_poster, container, false);
         ButterKnife.bind(this, rootView);
         setHasOptionsMenu(true);
-        mCurrentUri = FavoriteMovieEntry.CONTENT_URI;
-        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        setUIData();
-
-        if (savedInstanceState == null) {
-            fetchPosterData();
+        if (savedInstanceState != null) {
+            mMovieList = savedInstanceState.getParcelableArrayList(MOVIE_KEY);
+            mGridView.setVerticalScrollbarPosition(savedInstanceState.getInt(GRID_POSITION_KEY));
         }
 
+        setUIData();
         return rootView;
     }
 
-    private void loadFavorites() {
-        mMovieList.clear();
+    /**
+     * Loads favorites query results into mFavoritesArrayList adds the list into the adapter.
+     */
+    public void loadFavorites() {
+        mFavoritesArrayList.clear();
         Cursor cursor = getActivity().getContentResolver().query(FavoriteMovieEntry.CONTENT_URI, null, null, null, null);
         while (cursor.moveToNext()) {
-            int idColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry._ID);
             int titleColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_TITLE);
             int plotColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_PLOT);
             int releaseDateColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_RELEASE_DATE);
@@ -86,25 +88,29 @@ public class PosterFragment extends Fragment implements LoaderManager.LoaderCall
             int posterColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_POSTER);
             int backdropColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_BACKDROP);
 
-            int id = cursor.getInt(idColumnIndex);
             int movieId = cursor.getInt(movieIdColumnIndex);
             String title = cursor.getString(titleColumnIndex);
             String plot = cursor.getString(plotColumnIndex);
             String releaseDate = cursor.getString(releaseDateColumnIndex);
             double rating = cursor.getDouble(ratingColumnIndex);
-            byte[] poster = cursor.getBlob(posterColumnIndex);
-            byte[] backdrop = cursor.getBlob(backdropColumnIndex);
+            String poster = cursor.getString(posterColumnIndex);
+            String backdrop = cursor.getString(backdropColumnIndex);
 
-
-            Movie movie = new Movie(title, plot, poster, rating, releaseDate, backdrop, movieId);
-            mMovieList.add(movie);
+            mFavoritesArrayList.add(new Movie(title, plot, poster, rating, releaseDate, backdrop, movieId));
         }
-        mAdapter.notifyDataSetChanged();
+        mAdapter.clear();
+        mAdapter.addAll(mFavoritesArrayList);
+        cursor.close();
     }
 
+    /**
+     * inisializes UI fields and onClickListeners
+     */
     private void setUIData() {
         mAdapter = new MovieGridAdapter(getActivity(), mMovieList);
         mGridView.setAdapter(mAdapter);
+        mGridView.setEmptyView(mEmptyView);
+        mDialog = new ProgressDialog(getActivity());
 
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -118,8 +124,7 @@ public class PosterFragment extends Fragment implements LoaderManager.LoaderCall
                 } else {
                     Bundle args = new Bundle();
                     Movie currentMovie = (Movie) parent.getItemAtPosition(position);
-                    args.putParcelable("ARGUMENTS", currentMovie);
-                    Log.v("CLICKING", currentMovie.getTitle());
+                    args.putParcelable(getString(R.string.arguments), currentMovie);
                     DetailFragment detailFragment = new DetailFragment();
                     detailFragment.setArguments(args);
                     getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, detailFragment).commit();
@@ -132,9 +137,7 @@ public class PosterFragment extends Fragment implements LoaderManager.LoaderCall
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Movie currentMovie = (Movie) parent.getItemAtPosition(position);
                 if (mMovieList.contains(currentMovie)) {
-                    mMovieList.remove(currentMovie);
-                    Uri uri = ContentUris.withAppendedId(FavoriteMovieEntry.CONTENT_URI, currentMovie.getId());
-                    int rowsDeleted = getActivity().getContentResolver().delete(uri, null, null);
+                    removeFavoriteMovie(currentMovie);
                 }
                 mAdapter.notifyDataSetChanged();
                 return true;
@@ -142,50 +145,56 @@ public class PosterFragment extends Fragment implements LoaderManager.LoaderCall
         });
     }
 
-    private void fetchPosterData() {
-        if (prefs.getString(getString(R.string.sortOptions), getString(R.string.popular)).equals("favorites")) {
-            Toast.makeText(getActivity(), "WORKING", Toast.LENGTH_SHORT).show();
+    /**
+     * Removes movie from mFavoritesArrayList then updates the view if the user has it chosen.
+     * If there is another Movie in the list, it will display.
+     * @param movie : movie to be removed.
+     */
+    public void removeFavoriteMovie(Movie movie) {
+        mFavoritesArrayList.remove(movie);
+        Uri uri = ContentUris.withAppendedId(FavoriteMovieEntry.CONTENT_URI, movie.getId());
+        int rowsDeleted = getActivity().getContentResolver().delete(uri, null, null);
+        if (mPrefs.getString(getString(R.string.sortOptions), getString(R.string.popular)).equals(getString(R.string.favorites)) && rowsDeleted > 0) {
             loadFavorites();
-        } else {
-            String baseUrl = "http://api.themoviedb.org/3/movie/" + prefs.getString(getString(R.string.sortOptions), getString(R.string.popular)) + "?api_key=0379de6cabbe4ba56fb0e6d68aa6bbdc";
-            apiRequest = new ApiRequest(getActivity());
-            apiRequest.fetchData(baseUrl, "poster");
-        }
-    }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(ArrayList<Movie> event) throws JSONException {
-        if (!event.isEmpty() && event.get(0) instanceof Movie) {
-            mMovieList.clear();
-            mMovieList.addAll(event);
-            mAdapter.notifyDataSetChanged();
-
-            mTablet = ((MainActivity) getActivity()).isTablet();
-            if (mTablet) {
+            if (mFavoritesArrayList.size() > 0 && mTablet) {
                 Bundle args = new Bundle();
-                Movie currentMovie = event.get(0);
-                args.putParcelable("ARGUMENTS", currentMovie);
-                Log.v("CLICKING", currentMovie.getTitle());
+                Movie currentMovie = mFavoritesArrayList.get(mFavoritesArrayList.size() - 1);
+                args.putParcelable(getString(R.string.arguments), currentMovie);
                 DetailFragment detailFragment = new DetailFragment();
                 detailFragment.setArguments(args);
                 getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, detailFragment).commit();
+            } else if (mTablet){
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, new DetailFragment()).commit();
             }
         }
+    }
 
+    /**
+     * Fetches movie data according to the users selected search criteria.
+     */
+    private void fetchPosterData() {
+
+        if (mPrefs.getString(getString(R.string.sortOptions), getString(R.string.popular)).equals(getString(R.string.favorites))) {
+            loadFavorites();
+            if (mFavoritesArrayList.isEmpty())
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, new DetailFragment()).commit();
+        } else {
+            mDialog.setMessage(getString(R.string.loading));
+            mDialog.setCancelable(true);
+            mDialog.show();
+
+            String baseUrl = getString(R.string.movie_base_url) + mPrefs.getString(getString(R.string.sortOptions), getString(R.string.popular)) + "?api_key=" + BuildConfig.MY_MOVIE_DB_API_KEY;
+            mApiRequest = new ApiRequest(getActivity());
+            mApiRequest.fetchData(baseUrl, getString(R.string.poster));
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList(MOVIE_KEY, mMovieList);
+        outState.putInt(GRID_POSITION_KEY, mGridView.getFirstVisiblePosition());
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        if (savedInstanceState != null)
-            mMovieList = savedInstanceState.getParcelableArrayList(MOVIE_KEY);
     }
 
     @Override
@@ -198,84 +207,60 @@ public class PosterFragment extends Fragment implements LoaderManager.LoaderCall
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        if (savedInstanceState == null) {
+            fetchPosterData();
+        }
+        super.onActivityCreated(savedInstanceState);
+
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CODE_PREFERENCES) {
-            if (prefs.getString(getString(R.string.sortOptions), getString(R.string.popular)).equals("favorites")) {
-                loadFavorites();
-            } else {
-                String baseUrl = "http://api.themoviedb.org/3/movie/" + prefs.getString(getString(R.string.sortOptions), getString(R.string.popular)) + "?api_key=0379de6cabbe4ba56fb0e6d68aa6bbdc";
-                apiRequest.fetchData(baseUrl, "poster");
-            }
+            fetchPosterData();
         }
     }
 
-    @Override
-    public void onPause() {
-        EventBus.getDefault().unregister(this);
-        super.onPause();
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(MovieEvent event) throws JSONException {
+        if (mDialog.isShowing())
+            mDialog.hide();
+
+        mMovieList.clear();
+        mMovieList.addAll(event.getMovieArrayList());
+        mAdapter.notifyDataSetChanged();
+
+        mTablet = ((MainActivity) getActivity()).isTablet();
+        if (mTablet) {
+            Bundle args = new Bundle();
+            Movie currentMovie = event.getMovieArrayList().get(0);
+            args.putParcelable(getString(R.string.arguments), currentMovie);
+            DetailFragment detailFragment = new DetailFragment();
+            detailFragment.setArguments(args);
+            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, detailFragment).commit();
+        }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(Movie event) {
+        removeFavoriteMovie(event);
+    }
 
     @Override
     public void onResume() {
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         super.onResume();
     }
 
-
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        String[] projection = {
-                FavoriteMovieEntry._ID,
-                FavoriteMovieEntry.COLUMN_FAVORITES_MOVIE_ID,
-                FavoriteMovieEntry.COLUMN_FAVORITES_TITLE,
-                FavoriteMovieEntry.COLUMN_FAVORITES_PLOT,
-                FavoriteMovieEntry.COLUMN_FAVORITES_RELEASE_DATE,
-                FavoriteMovieEntry.COLUMN_FAVORITES_RATING,
-                FavoriteMovieEntry.COLUMN_FAVORITES_POSTER,
-                FavoriteMovieEntry.COLUMN_FAVORITES_BACKDROP,
-
-        };
-        return new CursorLoader(getActivity(), mCurrentUri, projection, null, null, null);
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
     }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Cursor cursor = getActivity().getContentResolver().query(FavoriteMovieEntry.CONTENT_URI, null, null, null, null);
-        while (cursor.moveToNext()) {
-            int idColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry._ID);
-            int titleColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_TITLE);
-            int plotColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_PLOT);
-            int releaseDateColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_RELEASE_DATE);
-            int ratingColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_RATING);
-            int movieIdColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_MOVIE_ID);
-            int posterColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_POSTER);
-            int backdropColumnIndex = cursor.getColumnIndex(FavoriteMovieEntry.COLUMN_FAVORITES_BACKDROP);
-
-            int id = cursor.getInt(idColumnIndex);
-            int movieId = cursor.getInt(movieIdColumnIndex);
-            String title = cursor.getString(titleColumnIndex);
-            String plot = cursor.getString(plotColumnIndex);
-            String releaseDate = cursor.getString(releaseDateColumnIndex);
-            double rating = cursor.getDouble(ratingColumnIndex);
-            byte[] poster = cursor.getBlob(posterColumnIndex);
-            byte[] backdrop = cursor.getBlob(backdropColumnIndex);
-
-            Movie movie = new Movie(title, plot, poster, rating, releaseDate, backdrop, movieId);
-            mFavoriteMovies.add(movie);
-        }
-        Toast.makeText(getActivity(), mFavoriteMovies.size() + "", Toast.LENGTH_SHORT).show();
-    }
-
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-
 }
