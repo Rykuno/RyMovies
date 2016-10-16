@@ -92,7 +92,6 @@ public class MovieProvider extends ContentProvider {
 
     private Uri insertMovie(Uri uri, ContentValues values) {
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
-
         long id = database.insert(FavoriteMovieEntry.TABLE_NAME, null, values);
         if (id == -1) {
             return null;

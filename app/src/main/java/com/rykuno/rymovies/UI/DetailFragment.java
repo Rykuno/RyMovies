@@ -1,26 +1,34 @@
 package com.rykuno.rymovies.UI;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.rykuno.rymovies.Adapters.MovieTrailerAdapter;
+import com.rykuno.rymovies.Objects.EventObjects.TrailerEvent;
 import com.rykuno.rymovies.Objects.Movie;
 import com.rykuno.rymovies.R;
 import com.rykuno.rymovies.Utils.ApiRequest;
 import com.rykuno.rymovies.data.MovieDbContract.FavoriteMovieEntry;
+import com.rykuno.rymovies.data.MovieDbHelper;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -28,7 +36,11 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -41,11 +53,12 @@ import butterknife.ButterKnife;
  */
 public class DetailFragment extends Fragment {
     private static final String TRAILER_KEY = "TRAILER_KEY";
+    private static final String MOVIE_KEY = "MOVIE_KEY";
     private Movie mCurrentMovie;
     private ApiRequest mApiRequest;
     private MovieTrailerAdapter mAdapter;
-    private Uri mCurrentMovieUri;
     private ArrayList<String> mTrailerArrayList = new ArrayList();
+    private boolean movieFavorited;
 
     @BindView(R.id.backdrop_imageView)
     ImageView mBackdrop_imageView;
@@ -57,15 +70,14 @@ public class DetailFragment extends Fragment {
     TextView mPlot_textView;
     @BindView(R.id.released_textView)
     TextView mReleased_textView;
-    @BindView(R.id.rating_textView)
-    TextView mRating_textView;
     @BindView(R.id.trailer_gridview)
     GridView mTrailer_gridView;
     @BindView(R.id.reviews_button)
     Button review_button;
     @BindView(R.id.favorite_button)
     Button favorite_button;
-
+    @BindView(R.id.movieRating)
+    RatingBar movieRating_ratingBar;
 
     public DetailFragment() {
     }
@@ -75,14 +87,22 @@ public class DetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this, rootView);
+
         if (getArguments() != null)
             mCurrentMovie = getArguments().getParcelable("ARGUMENTS");
+        else if (getArguments() == null && getActivity().getIntent().getExtras() == null)
+            rootView.setVisibility(View.INVISIBLE);
+
+        if (savedInstanceState != null) {
+            mCurrentMovie = savedInstanceState.getParcelable(MOVIE_KEY);
+            rootView.setVisibility(View.VISIBLE);
+        }
 
         setUIData();
 
-        if (savedInstanceState == null && mCurrentMovie != null) {
+        if (savedInstanceState == null && mCurrentMovie != null)
             fetchTrailerData();
-        } else if (savedInstanceState != null) {
+        else if (savedInstanceState != null) {
             mTrailerArrayList = savedInstanceState.getStringArrayList(TRAILER_KEY);
         }
 
@@ -97,39 +117,36 @@ public class DetailFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(ArrayList<String> event) throws JSONException {
-        if (!event.isEmpty() && event.get(0) instanceof String) {
-            mTrailerArrayList.clear();
-            mTrailerArrayList.addAll(event);
-            mAdapter.notifyDataSetChanged();
-        }
+    public void onEvent(TrailerEvent event) throws JSONException {
+        mTrailerArrayList.clear();
+        mTrailerArrayList.addAll(event.getTrailerArrayList());
+        mAdapter.notifyDataSetChanged();
     }
 
-
     private void setUIData() {
+
         if (getActivity().getIntent() != null && getActivity().getIntent().getExtras() != null) {
             Intent intent = getActivity().getIntent();
             mCurrentMovie = intent.getParcelableExtra(getString(R.string.movie_key));
         }
-        if (mCurrentMovie != null) {
 
-            if (mCurrentMovie.getPoster() != null && mCurrentMovie.getBackdrop() != null) {
+        if (mCurrentMovie != null) {
+            if (!mCurrentMovie.getPoster().contains("imageDir") && !mCurrentMovie.getBackdrop().contains("imageDir")) {
                 Picasso.with(getActivity()).load("http://image.tmdb.org/t/p/w780/" + mCurrentMovie.getBackdrop()).into(mBackdrop_imageView);
                 Picasso.with(getActivity()).load("http://image.tmdb.org/t/p/w342/" + mCurrentMovie.getPoster()).into(mPoster_imageView);
             } else {
-                Bitmap posterBitmap = BitmapFactory.decodeByteArray(mCurrentMovie.getPosterByte(), 0, mCurrentMovie.getPosterByte().length);
-                Bitmap backdropBitmap = BitmapFactory.decodeByteArray(mCurrentMovie.getBackdropByte(), 0, mCurrentMovie.getBackdropByte().length);
-                mPoster_imageView.setImageBitmap(posterBitmap);
-                mBackdrop_imageView.setImageBitmap(backdropBitmap);
+                mPoster_imageView.setImageBitmap(loadImageFromStorage(String.valueOf(mCurrentMovie.getId()) + "poster"));
+                mBackdrop_imageView.setImageBitmap(loadImageFromStorage(String.valueOf(mCurrentMovie.getId()) + "backdrop"));
             }
+
+            DecimalFormat df = new DecimalFormat("#.#");
+
             mTitle_textView.setText(mCurrentMovie.getTitle());
             mPlot_textView.setText(mCurrentMovie.getPlot());
             mReleased_textView.setText(mCurrentMovie.getReleaseDate());
-            DecimalFormat df = new DecimalFormat("#.#");
-            mRating_textView.setText(String.valueOf(df.format(mCurrentMovie.getRating())));
-
             mAdapter = new MovieTrailerAdapter(getActivity(), mTrailerArrayList);
             mTrailer_gridView.setAdapter(mAdapter);
+            movieRating_ratingBar.setRating(Float.valueOf(df.format(mCurrentMovie.getRating() / 2)));
 
             review_button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -142,6 +159,42 @@ public class DetailFragment extends Fragment {
                 }
             });
 
+            mTrailer_gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    String keyPosition = mTrailerArrayList.get(position).toString();
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + keyPosition)));
+                }
+            });
+
+            configureFavoritesButton();
+
+        }
+    }
+
+    private void isMovieFavorited() {
+        MovieDbHelper dbHelper = new MovieDbHelper(getActivity());
+        SQLiteDatabase sqldb = dbHelper.getReadableDatabase();
+        String Query = "Select * from " + FavoriteMovieEntry.TABLE_NAME + " where " + FavoriteMovieEntry.COLUMN_FAVORITES_MOVIE_ID + " = " + mCurrentMovie.getId();
+        Cursor cursor = sqldb.rawQuery(Query, null);
+        if (cursor.getCount() > 0) {
+            cursor.close();
+            dbHelper.close();
+            sqldb.close();
+            movieFavorited = true;
+        } else {
+            cursor.close();
+            dbHelper.close();
+            sqldb.close();
+            movieFavorited = false;
+        }
+        configureFavoritesButton();
+
+    }
+
+    private void configureFavoritesButton() {
+        if (movieFavorited == false) {
+            favorite_button.setText("Favorite");
             favorite_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -152,9 +205,8 @@ public class DetailFragment extends Fragment {
                     int id = mCurrentMovie.getId();
                     mPoster_imageView.buildDrawingCache();
                     mBackdrop_imageView.buildDrawingCache();
-                    byte[] poster = getBitmapAsByteArray(mPoster_imageView.getDrawingCache());
-                    byte[] backdrop = getBitmapAsByteArray(mBackdrop_imageView.getDrawingCache());
-
+                    String poster = saveToInternalStorage(mPoster_imageView.getDrawingCache(), "poster");
+                    String backdrop = saveToInternalStorage(mBackdrop_imageView.getDrawingCache(), "backdrop");
 
                     ContentValues values = new ContentValues();
                     values.put(FavoriteMovieEntry.COLUMN_FAVORITES_TITLE, title);
@@ -166,25 +218,29 @@ public class DetailFragment extends Fragment {
                     values.put(FavoriteMovieEntry.COLUMN_FAVORITES_BACKDROP, backdrop);
 
                     Uri newUri = getActivity().getContentResolver().insert(FavoriteMovieEntry.CONTENT_URI, values);
-                    if (newUri == null) {
-                        Toast.makeText(getActivity(), "Already Favorited", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getActivity(), "Favorited", Toast.LENGTH_SHORT).show();
-                    }
+                    favorite_button.setText("Unfavorite");
+                    isMovieFavorited();
+                }
+            });
+        }
+
+        if (movieFavorited == true) {
+            favorite_button.setText("Unfavorite");
+            favorite_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EventBus.getDefault().post(mCurrentMovie);
+                    favorite_button.setText("Favorite");
+                    isMovieFavorited();
                 }
             });
         }
     }
 
-    public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-        return outputStream.toByteArray();
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putStringArrayList(TRAILER_KEY, mTrailerArrayList);
+        outState.putParcelable(MOVIE_KEY, mCurrentMovie);
         super.onSaveInstanceState(outState);
     }
 
@@ -207,4 +263,42 @@ public class DetailFragment extends Fragment {
         EventBus.getDefault().unregister(this);
         super.onPause();
     }
+
+    private String saveToInternalStorage(Bitmap bitmapImage, String identifier) {
+        ContextWrapper cw = new ContextWrapper(getActivity());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath = new File(directory, String.valueOf(mCurrentMovie.getId()) + identifier + ".jpg");
+        Log.e(mypath.toString(), " PATH TO FILE");
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return directory.getAbsolutePath();
+    }
+
+    private Bitmap loadImageFromStorage(String identifier) {
+
+        try {
+            File f = new File("/data/user/0/com.rykuno.rymovies/app_imageDir", identifier + ".jpg");
+            return BitmapFactory.decodeStream(new FileInputStream(f));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+
 }

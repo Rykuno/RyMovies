@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.rykuno.rymovies.Adapters.MovieCommentsAdapter;
 import com.rykuno.rymovies.Objects.Comment;
+import com.rykuno.rymovies.Objects.EventObjects.CommentsEvent;
 import com.rykuno.rymovies.R;
 import com.rykuno.rymovies.Utils.ApiRequest;
 
@@ -73,12 +74,10 @@ public class CommentsFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(ArrayList<Comment> event) throws JSONException {
-        if (!event.isEmpty() && event.get(0) instanceof Comment) {
-            mCommentArrayList.clear();
-            mCommentArrayList.addAll(event);
-            mAdapter.notifyDataSetChanged();
-        }
+    public void onEvent(CommentsEvent event) throws JSONException {
+        mCommentArrayList.clear();
+        mCommentArrayList.addAll(event.getCommentArrayList());
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

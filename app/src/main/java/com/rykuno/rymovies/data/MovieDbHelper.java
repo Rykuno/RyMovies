@@ -25,8 +25,8 @@ public class MovieDbHelper extends SQLiteOpenHelper{
                 + FavoriteMovieEntry.COLUMN_FAVORITES_PLOT + " TEXT, "
                 + FavoriteMovieEntry.COLUMN_FAVORITES_RATING + " TEXT, "
                 + FavoriteMovieEntry.COLUMN_FAVORITES_RELEASE_DATE + " REAL, "
-                + FavoriteMovieEntry.COLUMN_FAVORITES_POSTER + " BLOB, "
-                + FavoriteMovieEntry.COLUMN_FAVORITES_BACKDROP + " BLOB, "
+                + FavoriteMovieEntry.COLUMN_FAVORITES_POSTER + " Text, "
+                + FavoriteMovieEntry.COLUMN_FAVORITES_BACKDROP + " Text, "
                 + FavoriteMovieEntry.COLUMN_FAVORITES_MOVIE_ID + " INTEGER UNIQUE);";
 
         db.execSQL(SQL_CREATE_FAVORITES_TABLE);

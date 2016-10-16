@@ -5,6 +5,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.Toast;
 
+import com.rykuno.rymovies.Objects.EventObjects.CommentsEvent;
+import com.rykuno.rymovies.Objects.EventObjects.MovieEvent;
+import com.rykuno.rymovies.Objects.EventObjects.TrailerEvent;
+
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 
@@ -25,6 +29,7 @@ public class ApiRequest {
     private JsonParser mJsonParser;
     private String mCode;
     private Context mContext;
+    private ArrayList parsedJsonArrayList;
 
 
     public ApiRequest(Context context) {
@@ -47,17 +52,30 @@ public class ApiRequest {
                     String mJsonData = response.body().string();
                     mJsonParser = new JsonParser();
                     try {
-                        ArrayList parsedJsonArrayList = mJsonParser.parseJsonData(mCode, mJsonData);
-                        EventBus.getDefault().post(parsedJsonArrayList);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        switch (mCode) {
+                            case "poster":
+                                 parsedJsonArrayList = mJsonParser.parseJsonData(mCode, mJsonData);
+                                EventBus.getDefault().post(new MovieEvent(parsedJsonArrayList));
+                                break;
+                            case "trailer" :
+                                 parsedJsonArrayList = mJsonParser.parseJsonData(mCode, mJsonData);
+                                EventBus.getDefault().post(new TrailerEvent(parsedJsonArrayList));
+                                break;
+                            case "comments" :
+                                 parsedJsonArrayList = mJsonParser.parseJsonData(mCode, mJsonData);
+                                EventBus.getDefault().post(new CommentsEvent(parsedJsonArrayList));
+                                break;
+
+                        }
+                        }catch(JSONException e){
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
-        } else {
-            Toast.makeText(mContext, "Network Unavailable", Toast.LENGTH_SHORT).show();
+                });
+            }else{
+                Toast.makeText(mContext, "Network Unavailable", Toast.LENGTH_SHORT).show();
+            }
         }
-    }
 
     private boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -68,4 +86,5 @@ public class ApiRequest {
         }
         return isAvailable;
     }
+
 }

@@ -14,6 +14,9 @@ import com.rykuno.rymovies.Objects.Movie;
 import com.rykuno.rymovies.R;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -25,16 +28,19 @@ import jp.shts.android.library.TriangleLabelView;
 
 public class MovieGridAdapter extends ArrayAdapter<Movie> {
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.#");
+    private Movie mCurrentMovie;
 
     public MovieGridAdapter(Context context, List<Movie> object) {
         super(context, 0, object);
     }
+
 
     @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View gridItemView = convertView;
         Movie currentMovie = getItem(position);
+        mCurrentMovie = currentMovie;
         MyViewHolder holder = null;
         if (gridItemView == null) {
             gridItemView = LayoutInflater.from(getContext()).inflate(R.layout.poster_item, parent, false);
@@ -44,11 +50,10 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
             holder = (MyViewHolder) gridItemView.getTag();
         }
 
-        if (currentMovie.getPoster() !=null)
+        if (!currentMovie.getPoster().contains("imageDir"))
         Picasso.with(getContext()).load("http://image.tmdb.org/t/p/w500/" + currentMovie.getPoster()).into(holder.posterImage);
         else{
-            Bitmap bmp = BitmapFactory.decodeByteArray(currentMovie.getPosterByte(), 0, currentMovie.getPosterByte().length);
-            holder.posterImage.setImageBitmap(bmp);
+            holder.posterImage.setImageBitmap(loadImageFromStorage(String.valueOf(mCurrentMovie.getId()) + "poster"));
         }
 
 
@@ -61,6 +66,21 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
         }
 
         return gridItemView;
+    }
+
+    private Bitmap loadImageFromStorage(String identifier)
+    {
+
+        try {
+            File f=new File("/data/user/0/com.rykuno.rymovies/app_imageDir", identifier + ".jpg");
+            return  BitmapFactory.decodeStream(new FileInputStream(f));
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+
     }
 
 
