@@ -1,4 +1,4 @@
-package com.rykuno.rymovies.Adapters;
+package com.rykuno.rymovies.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
-import com.rykuno.rymovies.Objects.Movie;
+import com.rykuno.rymovies.objects.Movie;
 import com.rykuno.rymovies.R;
 import com.squareup.picasso.Picasso;
 

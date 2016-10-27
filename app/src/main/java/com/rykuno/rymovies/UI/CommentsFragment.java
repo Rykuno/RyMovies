@@ -1,4 +1,4 @@
-package com.rykuno.rymovies.UI;
+package com.rykuno.rymovies.ui;
 
 
 import android.os.Bundle;
@@ -9,12 +9,12 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.rykuno.rymovies.Adapters.MovieCommentsAdapter;
+import com.rykuno.rymovies.adapters.MovieCommentsAdapter;
 import com.rykuno.rymovies.BuildConfig;
-import com.rykuno.rymovies.Objects.Comment;
-import com.rykuno.rymovies.Objects.EventBusObjects.CommentsEvent;
+import com.rykuno.rymovies.objects.Comment;
+import com.rykuno.rymovies.objects.eventBusObjects.CommentsEvent;
 import com.rykuno.rymovies.R;
-import com.rykuno.rymovies.Utils.ApiRequest;
+import com.rykuno.rymovies.utils.ApiRequest;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

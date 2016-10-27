@@ -1,4 +1,4 @@
-package com.rykuno.rymovies.Adapters;
+package com.rykuno.rymovies.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.rykuno.rymovies.Objects.Comment;
+import com.rykuno.rymovies.objects.Comment;
 import com.rykuno.rymovies.R;
 
 import java.util.List;

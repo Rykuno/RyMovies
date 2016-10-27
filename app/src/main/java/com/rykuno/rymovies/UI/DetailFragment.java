@@ -1,11 +1,6 @@
-package com.rykuno.rymovies.UI;
+package com.rykuno.rymovies.ui;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -21,14 +16,13 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.rykuno.rymovies.Adapters.MovieTrailerAdapter;
 import com.rykuno.rymovies.BuildConfig;
-import com.rykuno.rymovies.Objects.EventBusObjects.TrailerEvent;
-import com.rykuno.rymovies.Objects.Movie;
 import com.rykuno.rymovies.R;
-import com.rykuno.rymovies.Utils.ApiRequest;
-import com.rykuno.rymovies.data.MovieDbContract;
-import com.rykuno.rymovies.data.MovieDbContract.FavoriteMovieEntry;
+import com.rykuno.rymovies.adapters.MovieTrailerAdapter;
+import com.rykuno.rymovies.objects.Movie;
+import com.rykuno.rymovies.objects.eventBusObjects.TrailerEvent;
+import com.rykuno.rymovies.tasks.ManageFavoriteMovieTask;
+import com.rykuno.rymovies.utils.ApiRequest;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -39,8 +33,6 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -57,8 +49,7 @@ public class DetailFragment extends Fragment {
     private ApiRequest mApiRequest;
     private MovieTrailerAdapter mAdapter;
     private View rootView;
-    private ArrayList<String> mTrailerArrayList = new ArrayList();
-    private boolean mMovieFavorited;
+    private ArrayList<String> mTrailerArrayList;
 
     @BindView(R.id.backdrop_imageView)
     ImageView mBackdrop_imageView;
@@ -82,6 +73,7 @@ public class DetailFragment extends Fragment {
     RatingBar mMovieRating_ratingBar;
 
     public DetailFragment() {
+        mTrailerArrayList = new ArrayList();
     }
 
     @Override
@@ -113,9 +105,10 @@ public class DetailFragment extends Fragment {
     }
 
     /**
-     * Sets UI fields and onClickListeners
+     * Sets ui fields and onClickListeners
      */
     private void setUIData() {
+
         //If the movie is passed through an Intent(I.E not tablet mode) set the current movie to the intent extra
         if (getActivity().getIntent() != null && getActivity().getIntent().getExtras() != null) {
             Intent intent = getActivity().getIntent();
@@ -126,12 +119,15 @@ public class DetailFragment extends Fragment {
         if (getArguments() != null) {
             mCurrentMovie = getArguments().getParcelable(getString(R.string.arguments));
             rootView.setVisibility(View.VISIBLE);
-        } else if (getArguments() == null && getActivity().getIntent().getExtras() == null)
+        } else if (getArguments() == null && getActivity().getIntent().getExtras() == null) {
             rootView.setVisibility(View.INVISIBLE);
-
+        }
 
         //Set the poster and backdrop images depending on what data we have passed in(I.E, file name to retreive from or URL)
         if (mCurrentMovie != null) {
+            //checks the favorited state of the movie
+             new ManageFavoriteMovieTask(getActivity(), mCurrentMovie, false, mFavorite_button, mPoster_imageView, mBackdrop_imageView).execute();
+
             if (!mCurrentMovie.getPoster().contains(getString(R.string.imageDir)) && !mCurrentMovie.getBackdrop().contains(getString(R.string.imageDir))) {
                 Picasso.with(getActivity()).load("http://image.tmdb.org/t/p/w780/" + mCurrentMovie.getBackdrop()).into(mBackdrop_imageView);
                 Picasso.with(getActivity()).load("http://image.tmdb.org/t/p/w342/" + mCurrentMovie.getPoster()).into(mPoster_imageView);
@@ -177,73 +173,12 @@ public class DetailFragment extends Fragment {
                 }
             });
 
-            isMovieFavorited();
-            configureFavoritesButton();
-
-        }
-    }
-
-    /**
-     * Determiens if the current movie is favorited
-     * through querying the database for a match of the movie ID.
-     */
-    private void isMovieFavorited() {
-        Uri uri = ContentUris.withAppendedId(MovieDbContract.FavoriteMovieEntry.CONTENT_URI, mCurrentMovie.getId());
-        Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
-
-        if (cursor.getCount() > 0)
-            mMovieFavorited = true;
-        else
-            mMovieFavorited = false;
-
-        cursor.close();
-        configureFavoritesButton();
-    }
-
-    /**
-     * Decides which action the favorites button will
-     * take depending on the favorited state of the movie.
-     */
-    private void configureFavoritesButton() {
-        if (mMovieFavorited == false) {
-            mFavorite_button.setImageResource(android.R.drawable.star_big_off);
             mFavorite_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String title = mCurrentMovie.getTitle();
-                    String plot = mCurrentMovie.getPlot();
-                    String releaseDate = mCurrentMovie.getReleaseDate();
-                    double rating = mCurrentMovie.getRating();
-                    int id = mCurrentMovie.getId();
-                    mPoster_imageView.buildDrawingCache();
-                    mBackdrop_imageView.buildDrawingCache();
-                    String poster = saveToInternalStorage(mPoster_imageView.getDrawingCache(), getString(R.string.poster));
-                    String backdrop = saveToInternalStorage(mBackdrop_imageView.getDrawingCache(), getString(R.string.backdrop));
-
-                    ContentValues values = new ContentValues();
-                    values.put(FavoriteMovieEntry.COLUMN_FAVORITES_TITLE, title);
-                    values.put(FavoriteMovieEntry.COLUMN_FAVORITES_PLOT, plot);
-                    values.put(FavoriteMovieEntry.COLUMN_FAVORITES_RELEASE_DATE, releaseDate);
-                    values.put(FavoriteMovieEntry.COLUMN_FAVORITES_RATING, rating);
-                    values.put(FavoriteMovieEntry.COLUMN_FAVORITES_MOVIE_ID, id);
-                    values.put(FavoriteMovieEntry.COLUMN_FAVORITES_POSTER, poster);
-                    values.put(FavoriteMovieEntry.COLUMN_FAVORITES_BACKDROP, backdrop);
-
-                    Uri newUri = getActivity().getContentResolver().insert(FavoriteMovieEntry.CONTENT_URI, values);
-                    mFavorite_button.setImageResource(android.R.drawable.star_big_on);
-                    isMovieFavorited();
-                }
-            });
-        }
-
-        if (mMovieFavorited == true) {
-            mFavorite_button.setImageResource(android.R.drawable.star_big_on);
-            mFavorite_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                    ManageFavoriteMovieTask manageFavoriteMovieTask = new ManageFavoriteMovieTask(getActivity(), mCurrentMovie, true, mFavorite_button, mPoster_imageView, mBackdrop_imageView);
+                    manageFavoriteMovieTask.execute();
                     EventBus.getDefault().post(mCurrentMovie);
-                    mFavorite_button.setImageResource(android.R.drawable.star_big_off);
-                    isMovieFavorited();
                 }
             });
         }
@@ -256,12 +191,6 @@ public class DetailFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-
-    /**
-     * EventBus callback for populating the trailer's gridview.
-     * @param event : ArrayList passed from ApiRequest class after retrieving data.
-     * @throws JSONException
-     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(TrailerEvent event) throws JSONException {
         mTrailerArrayList.clear();
@@ -281,42 +210,6 @@ public class DetailFragment extends Fragment {
         super.onPause();
     }
 
-    /**
-     * Saves the poster/backdrop images to internal storage for offline favorites viewing.
-     *
-     * @param bitmapImage : poster from mCurrentMovie.
-     * @param identifier  : pass in "poster" or "backdrop" to identify  files from each other.
-     * @return the String directory to where the file is stored.
-     */
-    private String saveToInternalStorage(Bitmap bitmapImage, String identifier) {
-        ContextWrapper cw = new ContextWrapper(getActivity());
-        // path to /data/data/yourapp/app_data/imageDir
-        File directory = cw.getDir(getString(R.string.imageDir), Context.MODE_PRIVATE);
-        // Create imageDir
-        File mypath = new File(directory, String.valueOf(mCurrentMovie.getId()) + identifier + ".jpg");
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(mypath);
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return directory.getAbsolutePath();
-    }
-
-    /**
-     * Loads the bitmap of the image of whos file path is passed in.
-     *
-     * @param path : pass the path of the image to retrieve.
-     * @return Bitmap of the image to restore.
-     */
     private Bitmap loadImageFromStorage(String path) {
 
         try {

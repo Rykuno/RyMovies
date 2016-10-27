@@ -1,9 +1,9 @@
-package com.rykuno.rymovies.Utils;
+package com.rykuno.rymovies.utils;
 
 import android.util.Log;
 
-import com.rykuno.rymovies.Objects.Comment;
-import com.rykuno.rymovies.Objects.Movie;
+import com.rykuno.rymovies.objects.Comment;
+import com.rykuno.rymovies.objects.Movie;
 
 import org.json.JSONArray;
 import org.json.JSONException;

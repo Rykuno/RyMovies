@@ -14,7 +14,7 @@
 
     <fragment
         android:id="@+id/posterFragment"
-        android:name="com.rykuno.rymovies.UI.PosterFragment"
+        android:name="com.rykuno.rymovies.ui.PosterFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"

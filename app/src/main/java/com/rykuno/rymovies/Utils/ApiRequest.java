@@ -1,13 +1,13 @@
-package com.rykuno.rymovies.Utils;
+package com.rykuno.rymovies.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.Toast;
 
-import com.rykuno.rymovies.Objects.EventBusObjects.CommentsEvent;
-import com.rykuno.rymovies.Objects.EventBusObjects.MovieEvent;
-import com.rykuno.rymovies.Objects.EventBusObjects.TrailerEvent;
+import com.rykuno.rymovies.objects.eventBusObjects.CommentsEvent;
+import com.rykuno.rymovies.objects.eventBusObjects.MovieEvent;
+import com.rykuno.rymovies.objects.eventBusObjects.TrailerEvent;
 import com.rykuno.rymovies.R;
 
 import org.greenrobot.eventbus.EventBus;

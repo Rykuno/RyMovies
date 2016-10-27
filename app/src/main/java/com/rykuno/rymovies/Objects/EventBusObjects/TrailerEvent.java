@@ -1,4 +1,4 @@
-package com.rykuno.rymovies.Objects.EventBusObjects;
+package com.rykuno.rymovies.objects.eventBusObjects;
 
 import java.util.ArrayList;
 

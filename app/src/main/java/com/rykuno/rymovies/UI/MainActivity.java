@@ -1,4 +1,4 @@
-package com.rykuno.rymovies.UI;
+package com.rykuno.rymovies.ui;
 
 
 import android.os.Bundle;

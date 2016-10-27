@@ -1,6 +1,6 @@
-package com.rykuno.rymovies.Objects.EventBusObjects;
+package com.rykuno.rymovies.objects.eventBusObjects;
 
-import com.rykuno.rymovies.Objects.Comment;
+import com.rykuno.rymovies.objects.Comment;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package com.rykuno.rymovies.Objects;
+package com.rykuno.rymovies.objects;
 
 import android.os.Parcel;
 import android.os.Parcelable;

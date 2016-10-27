@@ -1,6 +1,6 @@
-package com.rykuno.rymovies.Objects.EventBusObjects;
+package com.rykuno.rymovies.objects.eventBusObjects;
 
-import com.rykuno.rymovies.Objects.Movie;
+import com.rykuno.rymovies.objects.Movie;
 
 import java.util.ArrayList;
 

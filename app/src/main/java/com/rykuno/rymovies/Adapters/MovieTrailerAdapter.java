@@ -1,4 +1,4 @@
-package com.rykuno.rymovies.Adapters;
+package com.rykuno.rymovies.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

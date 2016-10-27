@@ -1,4 +1,4 @@
-package com.rykuno.rymovies.UI;
+package com.rykuno.rymovies.ui;
 
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -17,20 +17,15 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Add 'general' preferences, defined in the XML file
         addPreferencesFromResource(R.xml.pref_general);
 
-        // For all preferences, attach an OnPreferenceChangeListener so the UI summary can be
+        // For all preferences, attach an OnPreferenceChangeListener so the ui summary can be
         // updated when the preference changes.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.sortOptions)));
 
     }
 
-    /**
-     * Attaches a listener so the summary is always updated with the preference value.
-     * Also fires the listener once, to initialize the summary (so it shows up before the value
-     * is changed.)
-     */
+
     private void bindPreferenceSummaryToValue(Preference preference) {
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(this);

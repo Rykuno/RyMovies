@@ -1,4 +1,4 @@
-package com.rykuno.rymovies.Objects;
+package com.rykuno.rymovies.objects;
 
 /**
  * Created by rykuno on 10/8/16.
