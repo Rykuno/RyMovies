@@ -1,4 +1,4 @@
-package com.rykuno.rymovies.utils;
+package com.rykuno.rymovies.services;
 
 import android.util.Log;
 
@@ -18,7 +18,6 @@ import java.util.ArrayList;
 public class JsonParser {
 
     public JsonParser() {
-
     }
 
     public ArrayList parseJsonData(String code, String jsonData) throws JSONException {

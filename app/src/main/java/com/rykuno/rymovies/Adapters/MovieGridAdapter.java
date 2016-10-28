@@ -53,7 +53,7 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
         }
 
         if (!currentMovie.getPoster().contains(mContext.getString(R.string.imageDir)))
-        Picasso.with(getContext()).load("http://image.tmdb.org/t/p/w500/" + currentMovie.getPoster()).into(holder.posterImage);
+        Picasso.with(getContext()).load(mContext.getString(R.string.current_poster_w500_url, mCurrentMovie.getPoster())).into(holder.posterImage);
         else{
             holder.posterImage.setImageBitmap(loadImageFromStorage(String.valueOf(mCurrentMovie.getId()) + mContext.getString(R.string.poster)));
         }
@@ -86,7 +86,7 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
     }
 
 
-    static class MyViewHolder {
+    private static class MyViewHolder {
         ImageView posterImage;
         TriangleLabelView posterRating;
 

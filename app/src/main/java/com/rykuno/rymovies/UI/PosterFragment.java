@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -19,8 +19,8 @@ import com.rykuno.rymovies.R;
 import com.rykuno.rymovies.adapters.MovieGridAdapter;
 import com.rykuno.rymovies.objects.Movie;
 import com.rykuno.rymovies.objects.eventBusObjects.MovieEvent;
+import com.rykuno.rymovies.services.ApiRequest;
 import com.rykuno.rymovies.tasks.FetchFavoriteMoviesTask;
-import com.rykuno.rymovies.utils.ApiRequest;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -34,9 +34,7 @@ import butterknife.ButterKnife;
 
 
 public class PosterFragment extends Fragment {
-    private static final String MOVIE_KEY = "MOVIE_KEY";
     private static final int CODE_PREFERENCES = 100;
-    private static final String GRID_POSITION_KEY = "SCROLL KEY";
     private MovieGridAdapter mAdapter;
     private ArrayList<Movie> mMovieList;
     private ApiRequest mApiRequest;
@@ -49,7 +47,6 @@ public class PosterFragment extends Fragment {
     @BindView(R.id.gridView_emptyView)
     View mEmptyView;
 
-
     public PosterFragment() {
         mMovieList = new ArrayList<>();
     }
@@ -58,17 +55,12 @@ public class PosterFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_poster, container, false);
         ButterKnife.bind(this, rootView);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         setHasOptionsMenu(true);
-
-        if (savedInstanceState != null) {
-            mMovieList = savedInstanceState.getParcelableArrayList(MOVIE_KEY);
-            mGridView.setVerticalScrollbarPosition(savedInstanceState.getInt(GRID_POSITION_KEY));
-        }
-
         setUIData();
+        fetchPosterData();
         return rootView;
     }
-
 
     private void setUIData() {
         mAdapter = new MovieGridAdapter(getActivity(), mMovieList);
@@ -99,38 +91,27 @@ public class PosterFragment extends Fragment {
 
     public void removeFavoriteMovie() {
         if (mPrefs.getString(getString(R.string.sortOptions), getString(R.string.popular)).equals(getString(R.string.favorites))) {
-            FetchFavoriteMoviesTask fetchFavoriteMoviesTask = new FetchFavoriteMoviesTask(getActivity(), mAdapter);
-            fetchFavoriteMoviesTask.execute();
-
-            if (mTablet) {
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, new DetailFragment()).commit();
-            }
+            new FetchFavoriteMoviesTask(getActivity(), mAdapter).execute();
+            if (mTablet)
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, new DialogFragment()).commit();
         }
     }
-
 
     private void fetchPosterData() {
         if (mPrefs.getString(getString(R.string.sortOptions), getString(R.string.popular)).equals(getString(R.string.favorites))) {
             FetchFavoriteMoviesTask fetchFavoriteMoviesTask = new FetchFavoriteMoviesTask(getActivity(), mAdapter);
             fetchFavoriteMoviesTask.execute();
             if (mTablet)
-            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, new DetailFragment()).commit();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, new DetailFragment()).commit();
         } else {
             mDialog.setMessage(getString(R.string.loading));
             mDialog.setCancelable(true);
             mDialog.show();
 
-            String baseUrl = getString(R.string.movie_base_url) + mPrefs.getString(getString(R.string.sortOptions), getString(R.string.popular)) + "?api_key=" + BuildConfig.MY_MOVIE_DB_API_KEY;
+            String url = getString(R.string.movies_url, (mPrefs.getString(getString(R.string.sortOptions), getString(R.string.popular))), BuildConfig.MY_MOVIE_DB_API_KEY);
             mApiRequest = new ApiRequest(getActivity());
-            mApiRequest.fetchData(baseUrl, getString(R.string.poster));
+            mApiRequest.fetchData(url, getString(R.string.poster));
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(MOVIE_KEY, mMovieList);
-        outState.putInt(GRID_POSITION_KEY, mGridView.getFirstVisiblePosition());
-        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -141,15 +122,6 @@ public class PosterFragment extends Fragment {
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        if (savedInstanceState == null) {
-            fetchPosterData();
-        }
-        super.onActivityCreated(savedInstanceState);
     }
 
     @Override

@@ -18,22 +18,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-/**
- * Created by rykuno on 10/27/16.
- */
-
 public class ManageFavoriteMovieTask extends AsyncTask<Void, Void, Void> {
-
     private Context mContext;
     private Movie mMovie;
     private ImageView mFavoriteButton;
     private ImageView mPoster;
     private ImageView mBackdrop;
     private boolean isFavorited;
-    private boolean mCommitAction = false;
-    Bitmap posterCache;
-    Bitmap backdropCache;
-
+    private boolean mCommitAction;
+    private Bitmap posterCache;
+    private Bitmap backdropCache;
 
     public ManageFavoriteMovieTask(Context context, Movie movie, boolean commitAction, ImageView favoriteButton, ImageView poster, ImageView backdrop) {
         mContext = context;
@@ -84,6 +78,7 @@ public class ManageFavoriteMovieTask extends AsyncTask<Void, Void, Void> {
                 isFavorited = false;
             }
         }
+        cursor.close();
         return null;
     }
 
@@ -130,9 +125,5 @@ public class ManageFavoriteMovieTask extends AsyncTask<Void, Void, Void> {
         File f = new File("/data/user/0/com.rykuno.rymovies/app_imageDir", path + ".jpg");
         if (f.exists())
             f.delete();
-    }
-
-    public boolean getFavoritedStatus(){
-        return isFavorited;
     }
 }

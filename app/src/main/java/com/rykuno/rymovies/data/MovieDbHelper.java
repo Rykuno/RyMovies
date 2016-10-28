@@ -22,12 +22,12 @@ public class MovieDbHelper extends SQLiteOpenHelper{
         String SQL_CREATE_FAVORITES_TABLE = "CREATE TABLE " + FavoriteMovieEntry.TABLE_NAME + " ("
                 + FavoriteMovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + FavoriteMovieEntry.COLUMN_FAVORITES_TITLE + " TEXT NOT NULL, "
-                + FavoriteMovieEntry.COLUMN_FAVORITES_PLOT + " TEXT, "
-                + FavoriteMovieEntry.COLUMN_FAVORITES_RATING + " TEXT, "
-                + FavoriteMovieEntry.COLUMN_FAVORITES_RELEASE_DATE + " REAL, "
-                + FavoriteMovieEntry.COLUMN_FAVORITES_POSTER + " Text, "
-                + FavoriteMovieEntry.COLUMN_FAVORITES_BACKDROP + " Text, "
-                + FavoriteMovieEntry.COLUMN_FAVORITES_MOVIE_ID + " INTEGER UNIQUE);";
+                + FavoriteMovieEntry.COLUMN_FAVORITES_PLOT + " TEXT NOT NULL, "
+                + FavoriteMovieEntry.COLUMN_FAVORITES_RATING + " TEXT NOT NULL, "
+                + FavoriteMovieEntry.COLUMN_FAVORITES_RELEASE_DATE + " REAL NOT NULL, "
+                + FavoriteMovieEntry.COLUMN_FAVORITES_POSTER + " Text NOT NULL, "
+                + FavoriteMovieEntry.COLUMN_FAVORITES_BACKDROP + " Text NOT NULL, "
+                + FavoriteMovieEntry.COLUMN_FAVORITES_MOVIE_ID + " INTEGER UNIQUE NOT NULL);";
 
         db.execSQL(SQL_CREATE_FAVORITES_TABLE);
     }

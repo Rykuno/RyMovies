@@ -14,7 +14,6 @@ public class FetchFavoriteMoviesTask extends AsyncTask<Void, Void, ArrayList<Mov
 
     private Context mContext;
     private MovieGridAdapter mAdapter;
-    private ArrayList<Movie> mMovieArrayList;
 
     public FetchFavoriteMoviesTask(Context context, MovieGridAdapter adapter) {
         mContext = context;
@@ -57,5 +56,4 @@ public class FetchFavoriteMoviesTask extends AsyncTask<Void, Void, ArrayList<Mov
         mAdapter.addAll(movies);
         mAdapter.notifyDataSetChanged();
     }
-
 }

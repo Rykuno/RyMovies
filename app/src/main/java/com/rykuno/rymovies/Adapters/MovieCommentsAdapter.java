@@ -42,8 +42,7 @@ public class MovieCommentsAdapter extends ArrayAdapter<Comment> {
         return view;
     }
 
-
-    static class MyViewHolder {
+    private static class MyViewHolder {
         TextView author_textView;
         TextView comment_textView;
 

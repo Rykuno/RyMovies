@@ -1,22 +1,18 @@
 <resources>
     <string name="app_name">RyMovies</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="data_fetch_failure">Unable to fetch data</string>
     <string name="title_activity_detail">Details</string>
     <string name="action_settings">Settings</string>
     <string name="sortOptions">sortOptions</string>
     <string name="popular">popular</string>
     <string name="sort_options_title">Sort Options</string>
-    <string name="failed_to_retrieve_data">Failed to retrieve data</string>
     <string name="check_network_connection">Check Network Connection</string>
-    <string name="movie_base_url">https://api.themoviedb.org/3/movie/</string>
     <string name="movie_key">MOVIE</string>
     <string name="trailer">trailer</string>
     <string name="poster">poster</string>
     <string name="backdrop">backdrop</string>
     <string name="favorites">favorites</string>
-    <string name="data_retreival_failure">Failed to retrieve data</string>
     <string name="network_unavailable">Network Unavailable</string>
     <string name="arguments">ARGUMENTS</string>
     <string name="movie_id">MOVIE_ID</string>
@@ -25,5 +21,24 @@
     <string name="no_movies_available">No Movies Available.</string>
     <string name="plot">Plot</string>
     <string name="send_to">Send to</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
+    <string name="sharing_movie">Check out the Movie %1$s!</string>
+    <string name="trailer_text">Trailer %1$d</string>
+
+    <!--Url Strings-->
+    <string name="comments_url">https://api.themoviedb.org/3/movie/%1$s/reviews?api_key=%2$s</string>
+    <string name="trailers_url">https://api.themoviedb.org/3/movie/%1$s/videos?api_key=%2$s</string>
+    <string name="movies_url">https://api.themoviedb.org/3/movie/%1$s/?api_key=%2$s</string>
+    <string name="sharing_trailer">Check out this Movie! %1$s https://www.youtube.com/watch?v=%2$s</string>
+    <string name="current_poster_w500_url">http://image.tmdb.org/t/p/w500/%1$s</string>
+    <string name="current_poster_w342_url">http://image.tmdb.org/t/p/w342/%1$s</string>
+    <string name="current_poster_w780_url">http://image.tmdb.org/t/p/w780/%1$s</string>
+    <string name="current_trailer_url">http://img.youtube.com/vi/%1$s/0.jpg</string>
+    <string name="view_trailer">https://www.youtube.com/watch?v=%1$s</string>
+
+    <!--File Save Paths-->
+    <string name="poster_save_file">%1$dposter</string>
+    <string name="backdrop_save_file">%1$dbackdrop</string>
+
+
 </resources>

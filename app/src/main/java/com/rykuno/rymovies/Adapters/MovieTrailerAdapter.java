@@ -19,8 +19,12 @@ import java.util.List;
  */
 
 public class MovieTrailerAdapter extends ArrayAdapter<String> {
+
+    private Context mContext;
+
     public MovieTrailerAdapter(Context context, List<String> objects) {
         super(context, 0, objects);
+        mContext = context;
     }
 
     @NonNull
@@ -37,14 +41,12 @@ public class MovieTrailerAdapter extends ArrayAdapter<String> {
             holder = (MovieTrailerAdapter.MyViewHolder) view.getTag();
         }
 
-        holder.trailer_textView.setText("Trailer " + (position + 1));
-        Picasso.with(getContext()).load("http://img.youtube.com/vi/" + currentTrailer + "/0.jpg").into(holder.trailer_imageView);
-
+        holder.trailer_textView.setText(mContext.getString(R.string.trailer_text, (position + 1)));
+        Picasso.with(getContext()).load(mContext.getString(R.string.current_trailer_url, currentTrailer)).into(holder.trailer_imageView);
         return view;
     }
 
-
-    static class MyViewHolder {
+    private static class MyViewHolder {
         TextView trailer_textView;
         ImageView trailer_imageView;
 
