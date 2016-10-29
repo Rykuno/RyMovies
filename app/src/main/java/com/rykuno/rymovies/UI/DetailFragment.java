@@ -19,8 +19,8 @@ import android.widget.TextView;
 import com.rykuno.rymovies.BuildConfig;
 import com.rykuno.rymovies.R;
 import com.rykuno.rymovies.adapters.MovieTrailerAdapter;
-import com.rykuno.rymovies.objects.Movie;
-import com.rykuno.rymovies.objects.eventBusObjects.TrailerEvent;
+import com.rykuno.rymovies.models.Movie;
+import com.rykuno.rymovies.models.eventBusModels.TrailerEvent;
 import com.rykuno.rymovies.services.ApiRequest;
 import com.rykuno.rymovies.tasks.ManageFavoriteMovieTask;
 import com.squareup.picasso.Picasso;
@@ -118,7 +118,7 @@ public class DetailFragment extends Fragment {
             }
 
             mTitle_textView.setText(mCurrentMovie.getTitle());
-            mPlot_textView.setText(mCurrentMovie.getPlot());
+            mPlot_textView.setText(getString(R.string.get_tabbed_text, mCurrentMovie.getPlot()));
             mReleased_textView.setText(mCurrentMovie.getReleaseDate());
             mMovieRating_ratingBar.setRating((float) (mCurrentMovie.getRating() / 2));
             mAdapter = new MovieTrailerAdapter(getActivity(), mTrailerArrayList);

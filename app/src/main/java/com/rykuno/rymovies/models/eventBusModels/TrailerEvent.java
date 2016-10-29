@@ -1,10 +1,7 @@
-package com.rykuno.rymovies.objects.eventBusObjects;
+package com.rykuno.rymovies.models.eventBusModels;
 
 import java.util.ArrayList;
 
-/**
- * Created by rykuno on 10/14/16.
- */
 
 public class TrailerEvent {
     private ArrayList<String> mTrailerArrayList ;

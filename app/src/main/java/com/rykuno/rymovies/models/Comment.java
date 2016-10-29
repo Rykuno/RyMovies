@@ -1,16 +1,8 @@
-package com.rykuno.rymovies.objects;
-
-/**
- * Created by rykuno on 10/8/16.
- */
-
-
+package com.rykuno.rymovies.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by rykuno on 3/16/16.
- */
+
 public class Comment implements Parcelable {
     private String mAuthor;
     private String mComment;

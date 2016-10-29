@@ -1,11 +1,8 @@
-package com.rykuno.rymovies.objects;
+package com.rykuno.rymovies.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by rykuno on 10/6/16.
- */
 
 public class Movie implements Parcelable {
     private String mTitle;

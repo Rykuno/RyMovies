@@ -5,10 +5,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.rykuno.rymovies.data.MovieDbContract.FavoriteMovieEntry;
 
-/**
- * Created by rykuno on 10/8/16.
- */
-
 public class MovieDbHelper extends SQLiteOpenHelper{
     private static final String DATABASE_NAME = "favorites.db";
     private static final int DATABASE_VERSION = 1;

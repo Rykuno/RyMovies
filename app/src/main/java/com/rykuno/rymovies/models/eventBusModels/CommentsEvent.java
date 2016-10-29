@@ -1,12 +1,8 @@
-package com.rykuno.rymovies.objects.eventBusObjects;
+package com.rykuno.rymovies.models.eventBusModels;
 
-import com.rykuno.rymovies.objects.Comment;
+import com.rykuno.rymovies.models.Comment;
 
 import java.util.ArrayList;
-
-/**
- * Created by rykuno on 10/14/16.
- */
 
 public class CommentsEvent {
     private ArrayList<Comment> mCommentArrayList;

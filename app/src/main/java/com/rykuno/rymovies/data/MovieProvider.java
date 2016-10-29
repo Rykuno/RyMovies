@@ -11,9 +11,6 @@ import android.support.annotation.Nullable;
 
 import com.rykuno.rymovies.data.MovieDbContract.FavoriteMovieEntry;
 
-/**
- * Created by rykuno on 10/11/16.
- */
 
 public class MovieProvider extends ContentProvider {
     private MovieDbHelper mDbHelper;
@@ -21,7 +18,8 @@ public class MovieProvider extends ContentProvider {
     private static final int MOVIE_ID = 1;
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-    static{
+
+    static {
         sUriMatcher.addURI(MovieDbContract.CONTENT_AUTHORITY, MovieDbContract.PATH_FAVORITES, MOVIE);
         sUriMatcher.addURI(MovieDbContract.CONTENT_AUTHORITY, MovieDbContract.PATH_FAVORITES + "/#", MOVIE_ID);
     }
@@ -40,8 +38,8 @@ public class MovieProvider extends ContentProvider {
         Cursor cursor;
 
         int match = sUriMatcher.match(uri);
-        switch (match){
-            case MOVIE :
+        switch (match) {
+            case MOVIE:
                 cursor = database.query(
                         FavoriteMovieEntry.TABLE_NAME,
                         projection,
@@ -51,7 +49,7 @@ public class MovieProvider extends ContentProvider {
                         null,
                         sortOrder);
                 break;
-            case MOVIE_ID :
+            case MOVIE_ID:
                 selection = FavoriteMovieEntry.COLUMN_FAVORITES_MOVIE_ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 cursor = database.query(
@@ -63,7 +61,7 @@ public class MovieProvider extends ContentProvider {
                         null,
                         sortOrder);
                 break;
-            default :
+            default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
 
@@ -89,8 +87,8 @@ public class MovieProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final int match = sUriMatcher.match(uri);
-        switch (match){
-            case MOVIE :
+        switch (match) {
+            case MOVIE:
                 return insertMovie(uri, values);
             default:
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
@@ -131,7 +129,6 @@ public class MovieProvider extends ContentProvider {
 
         return rowsDeleted;
     }
-
 
 
     @Override

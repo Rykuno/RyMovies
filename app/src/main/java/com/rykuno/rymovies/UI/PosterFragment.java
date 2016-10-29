@@ -17,8 +17,8 @@ import android.widget.GridView;
 import com.rykuno.rymovies.BuildConfig;
 import com.rykuno.rymovies.R;
 import com.rykuno.rymovies.adapters.MovieGridAdapter;
-import com.rykuno.rymovies.objects.Movie;
-import com.rykuno.rymovies.objects.eventBusObjects.MovieEvent;
+import com.rykuno.rymovies.models.Movie;
+import com.rykuno.rymovies.models.eventBusModels.MovieEvent;
 import com.rykuno.rymovies.services.ApiRequest;
 import com.rykuno.rymovies.tasks.FetchFavoriteMoviesTask;
 

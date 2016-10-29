@@ -1,12 +1,9 @@
-package com.rykuno.rymovies.objects.eventBusObjects;
+package com.rykuno.rymovies.models.eventBusModels;
 
-import com.rykuno.rymovies.objects.Movie;
+import com.rykuno.rymovies.models.Movie;
 
 import java.util.ArrayList;
 
-/**
- * Created by rykuno on 10/14/16.
- */
 
 public class MovieEvent {
     private ArrayList<Movie> mMovieArrayList;

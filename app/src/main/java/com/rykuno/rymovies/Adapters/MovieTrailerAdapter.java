@@ -14,9 +14,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-/**
- * Created by rykuno on 10/7/16.
- */
 
 public class MovieTrailerAdapter extends ArrayAdapter<String> {
 
@@ -29,10 +26,10 @@ public class MovieTrailerAdapter extends ArrayAdapter<String> {
 
     @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         View view = convertView;
         String currentTrailer = getItem(position);
-        MovieTrailerAdapter.MyViewHolder holder = null;
+        MovieTrailerAdapter.MyViewHolder holder;
         if (view == null) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.trailer_item, parent, false);
             holder = new MovieTrailerAdapter.MyViewHolder(view);
@@ -50,7 +47,7 @@ public class MovieTrailerAdapter extends ArrayAdapter<String> {
         TextView trailer_textView;
         ImageView trailer_imageView;
 
-        public MyViewHolder(View v) {
+        MyViewHolder(View v) {
             trailer_textView = (TextView) v.findViewById(R.id.trailer_textView);
             trailer_imageView = (ImageView) v.findViewById(R.id.trailer_imageView);
         }

@@ -8,9 +8,6 @@ import android.preference.PreferenceManager;
 
 import com.rykuno.rymovies.R;
 
-/**
- * Created by rykuno on 10/6/16.
- */
 public class SettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener {
 
@@ -18,9 +15,6 @@ public class SettingsActivity extends PreferenceActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref_general);
-
-        // For all preferences, attach an OnPreferenceChangeListener so the ui summary can be
-        // updated when the preference changes.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.sortOptions)));
 
     }

@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 
 import com.rykuno.rymovies.adapters.MovieGridAdapter;
 import com.rykuno.rymovies.data.MovieDbContract;
-import com.rykuno.rymovies.objects.Movie;
+import com.rykuno.rymovies.models.Movie;
 
 import java.util.ArrayList;
 

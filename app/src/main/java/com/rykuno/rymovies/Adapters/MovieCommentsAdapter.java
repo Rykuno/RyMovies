@@ -8,27 +8,27 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.rykuno.rymovies.objects.Comment;
+import com.rykuno.rymovies.models.Comment;
 import com.rykuno.rymovies.R;
 
 import java.util.List;
 
-/**
- * Created by rykuno on 10/8/16.
- */
-
 
 public class MovieCommentsAdapter extends ArrayAdapter<Comment> {
+
+    private Context mContext;
+
     public MovieCommentsAdapter(Context context, List<Comment> objects) {
         super(context, 0, objects);
+        mContext = context;
     }
 
     @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         View view = convertView;
         Comment currentComment = getItem(position);
-        MovieCommentsAdapter.MyViewHolder holder = null;
+        MovieCommentsAdapter.MyViewHolder holder;
         if (view == null) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.comments_item, parent, false);
             holder = new MovieCommentsAdapter.MyViewHolder(view);
@@ -37,8 +37,9 @@ public class MovieCommentsAdapter extends ArrayAdapter<Comment> {
             holder = (MovieCommentsAdapter.MyViewHolder) view.getTag();
         }
 
+        assert currentComment != null;
         holder.author_textView.setText(currentComment.getAuthor());
-        holder.comment_textView.setText(currentComment.getComment());
+        holder.comment_textView.setText(mContext.getString(R.string.get_tabbed_text, currentComment.getComment()));
         return view;
     }
 
@@ -46,7 +47,7 @@ public class MovieCommentsAdapter extends ArrayAdapter<Comment> {
         TextView author_textView;
         TextView comment_textView;
 
-        public MyViewHolder(View v) {
+         MyViewHolder(View v) {
             author_textView = (TextView) v.findViewById(R.id.textview_to_pop_list_author);
             comment_textView = (TextView) v.findViewById(R.id.textview_to_pop_list_comments);
         }

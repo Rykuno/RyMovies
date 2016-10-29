@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
-import com.rykuno.rymovies.objects.Movie;
+import com.rykuno.rymovies.models.Movie;
 import com.rykuno.rymovies.R;
 import com.squareup.picasso.Picasso;
 
@@ -22,13 +22,9 @@ import java.util.List;
 
 import jp.shts.android.library.TriangleLabelView;
 
-/**
- * Created by rykuno on 10/6/16.
- */
 
 public class MovieGridAdapter extends ArrayAdapter<Movie> {
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.#");
-    private Movie mCurrentMovie;
     private Context mContext;
 
     public MovieGridAdapter(Context context, List<Movie> object) {
@@ -39,11 +35,10 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
 
     @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         View gridItemView = convertView;
         Movie currentMovie = getItem(position);
-        mCurrentMovie = currentMovie;
-        MyViewHolder holder = null;
+        MyViewHolder holder;
         if (gridItemView == null) {
             gridItemView = LayoutInflater.from(getContext()).inflate(R.layout.poster_item, parent, false);
             holder = new MyViewHolder(gridItemView);
@@ -52,10 +47,11 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
             holder = (MyViewHolder) gridItemView.getTag();
         }
 
+        assert currentMovie != null;
         if (!currentMovie.getPoster().contains(mContext.getString(R.string.imageDir)))
-        Picasso.with(getContext()).load(mContext.getString(R.string.current_poster_w500_url, mCurrentMovie.getPoster())).into(holder.posterImage);
-        else{
-            holder.posterImage.setImageBitmap(loadImageFromStorage(String.valueOf(mCurrentMovie.getId()) + mContext.getString(R.string.poster)));
+            Picasso.with(getContext()).load(mContext.getString(R.string.current_poster_w500_url, currentMovie.getPoster())).into(holder.posterImage);
+        else {
+            holder.posterImage.setImageBitmap(loadImageFromStorage(String.valueOf(currentMovie.getId()) + mContext.getString(R.string.poster)));
         }
 
 
@@ -70,15 +66,12 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
         return gridItemView;
     }
 
-    private Bitmap loadImageFromStorage(String identifier)
-    {
+    private Bitmap loadImageFromStorage(String identifier) {
 
         try {
-            File f=new File("/data/user/0/com.rykuno.rymovies/app_imageDir", identifier + ".jpg");
-            return  BitmapFactory.decodeStream(new FileInputStream(f));
-        }
-        catch (FileNotFoundException e)
-        {
+            File f = new File("/data/user/0/com.rykuno.rymovies/app_imageDir", identifier + ".jpg");
+            return BitmapFactory.decodeStream(new FileInputStream(f));
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         return null;
@@ -90,7 +83,7 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
         ImageView posterImage;
         TriangleLabelView posterRating;
 
-        public MyViewHolder(View v) {
+        MyViewHolder(View v) {
             posterImage = (ImageView) v.findViewById(R.id.poster_imageView);
             posterRating = (TriangleLabelView) v.findViewById(R.id.posterRating);
         }

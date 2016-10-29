@@ -11,8 +11,8 @@ import android.widget.TextView;
 
 import com.rykuno.rymovies.adapters.MovieCommentsAdapter;
 import com.rykuno.rymovies.BuildConfig;
-import com.rykuno.rymovies.objects.Comment;
-import com.rykuno.rymovies.objects.eventBusObjects.CommentsEvent;
+import com.rykuno.rymovies.models.Comment;
+import com.rykuno.rymovies.models.eventBusModels.CommentsEvent;
 import com.rykuno.rymovies.R;
 import com.rykuno.rymovies.services.ApiRequest;
 

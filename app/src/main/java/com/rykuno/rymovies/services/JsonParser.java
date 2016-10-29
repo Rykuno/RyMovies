@@ -1,9 +1,7 @@
 package com.rykuno.rymovies.services;
 
-import android.util.Log;
-
-import com.rykuno.rymovies.objects.Comment;
-import com.rykuno.rymovies.objects.Movie;
+import com.rykuno.rymovies.models.Comment;
+import com.rykuno.rymovies.models.Movie;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,16 +9,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-/**
- * Created by rykuno on 10/8/16.
- */
+class JsonParser {
 
-public class JsonParser {
-
-    public JsonParser() {
+    JsonParser() {
     }
 
-    public ArrayList parseJsonData(String code, String jsonData) throws JSONException {
+    ArrayList parseJsonData(String code, String jsonData) throws JSONException {
         switch (code) {
             case "poster":
                 return getPosterJsonDetails(jsonData);
@@ -45,7 +39,6 @@ public class JsonParser {
             String releaseDate = movieResult.getString("release_date");
             String backdrop = movieResult.getString("backdrop_path");
             int id = movieResult.getInt("id");
-            Log.v("Test", id + "");
             moviesArrayList.add(new Movie(title, plot, poster, rating, releaseDate, backdrop, id));
 
         }

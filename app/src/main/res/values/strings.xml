@@ -24,6 +24,8 @@
     <string name="loading">Loading…</string>
     <string name="sharing_movie">Check out the Movie %1$s!</string>
     <string name="trailer_text">Trailer %1$d</string>
+    <string name="no_comments_available">No Comments Available…</string>
+
 
     <!--Url Strings-->
     <string name="comments_url">https://api.themoviedb.org/3/movie/%1$s/reviews?api_key=%2$s</string>
@@ -39,6 +41,6 @@
     <!--File Save Paths-->
     <string name="poster_save_file">%1$dposter</string>
     <string name="backdrop_save_file">%1$dbackdrop</string>
-
+    <string name="get_tabbed_text">\t\t\t%1$s</string>
 
 </resources>

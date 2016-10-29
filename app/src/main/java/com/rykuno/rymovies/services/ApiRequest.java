@@ -7,9 +7,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.rykuno.rymovies.R;
-import com.rykuno.rymovies.objects.eventBusObjects.CommentsEvent;
-import com.rykuno.rymovies.objects.eventBusObjects.MovieEvent;
-import com.rykuno.rymovies.objects.eventBusObjects.TrailerEvent;
+import com.rykuno.rymovies.models.eventBusModels.CommentsEvent;
+import com.rykuno.rymovies.models.eventBusModels.MovieEvent;
+import com.rykuno.rymovies.models.eventBusModels.TrailerEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
@@ -22,10 +22,6 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-/**
- * Created by rykuno on 10/7/16.
- */
 
 public class ApiRequest {
     private JsonParser mJsonParser;

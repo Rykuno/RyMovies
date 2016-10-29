@@ -4,10 +4,6 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-/**
- * Created by rykuno on 10/8/16.
- */
-
 public class MovieDbContract {
     public static final String CONTENT_AUTHORITY = "com.rykuno.rymovies";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);

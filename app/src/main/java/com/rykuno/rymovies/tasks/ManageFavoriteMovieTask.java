@@ -12,7 +12,7 @@ import android.widget.ImageView;
 
 import com.rykuno.rymovies.R;
 import com.rykuno.rymovies.data.MovieDbContract;
-import com.rykuno.rymovies.objects.Movie;
+import com.rykuno.rymovies.models.Movie;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -49,6 +49,7 @@ public class ManageFavoriteMovieTask extends AsyncTask<Void, Void, Void> {
         Cursor cursor = mContext.getContentResolver().query(uri, null, null, null, null);
 
         if (mCommitAction) {
+            assert cursor != null;
             if (cursor.getCount() > 0) {
                 int rowsDeleted = mContext.getContentResolver().delete(uri, null, null);
                 if (rowsDeleted > 0) {
@@ -71,20 +72,14 @@ public class ManageFavoriteMovieTask extends AsyncTask<Void, Void, Void> {
                 Uri newUri = mContext.getContentResolver().insert(MovieDbContract.FavoriteMovieEntry.CONTENT_URI, values);
                 isFavorited = true;
             }
-        } else {
-            if (cursor.getCount() > 0) {
-                isFavorited = true;
-            } else {
-                isFavorited = false;
-            }
-        }
+        } else isFavorited = cursor.getCount() > 0;
         cursor.close();
         return null;
     }
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        if (isFavorited == true) {
+        if (isFavorited) {
             mFavoriteButton.setImageResource(android.R.drawable.star_big_on);
         } else {
             mFavoriteButton.setImageResource(android.R.drawable.star_big_off);
@@ -113,6 +108,7 @@ public class ManageFavoriteMovieTask extends AsyncTask<Void, Void, Void> {
             e.printStackTrace();
         } finally {
             try {
+                assert fos != null;
                 fos.close();
             } catch (IOException e) {
                 e.printStackTrace();
